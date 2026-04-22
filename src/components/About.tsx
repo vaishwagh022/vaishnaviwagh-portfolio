@@ -63,7 +63,7 @@ export default function About() {
                 { label: 'Location', value: 'Maharashtra, India' },
                 { label: 'Experience', value: '1 Year' },
                 { label: 'Email', value: 'vaishwagh02@gmail.com', truncate: true },
-                { label: 'Phone', value: '+91-7774033605' },
+                { label: 'Phone', value: '+91-' },
               ].map(({ label, value, truncate }) => (
                 <div key={label} className="glass rounded-xl p-4 border border-white/5">
                   <p className="text-slate-500 text-xs uppercase tracking-widest mb-1">{label}</p>

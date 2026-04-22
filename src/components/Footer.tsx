@@ -76,7 +76,7 @@ export default function Footer() {
             <h4 className="text-slate-300 font-semibold text-sm uppercase tracking-wider mb-4">Contact</h4>
             <div className="space-y-3 text-sm text-slate-500">
               <p>vaishwagh02@gmail.com</p>
-              <p>+91-7774033605</p>
+              <p>+91-</p>
               <p>Maharashtra, India</p>
               <div className="pt-2">
                 <div className="flex items-center gap-2">
