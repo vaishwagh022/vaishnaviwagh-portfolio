@@ -1,6 +1,8 @@
-import { useState, FormEvent } from 'react';
-import { Mail, Phone, MapPin, Linkedin, Github, Send, CheckCircle2 } from 'lucide-react';
+
+import { useState, FormEvent, useEffect } from 'react';
+import { Mail, Phone, MapPin, Linkedin, Github, Send, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useElementAnimation } from '../hooks/useScrollAnimation';
+import emailjs from '@emailjs/browser';
 
 const contactInfo = [
   { icon: Mail, label: 'Email', value: 'vaishwagh02@gmail.com', href: 'mailto:vaishwagh02@gmail.com' },
@@ -10,9 +12,13 @@ const contactInfo = [
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
-  const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const leftRef = useElementAnimation(0);
   const rightRef = useElementAnimation(150);
+
+  useEffect(() => {
+    emailjs.init('FnwzWAzM-dhFEGivE'); // Your Public Key
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -21,15 +27,38 @@ export default function Contact() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setStatus('sending');
-    setTimeout(() => {
-      setStatus('sent');
-      setForm({ name: '', email: '', subject: '', message: '' });
-      setTimeout(() => setStatus('idle'), 4000);
-    }, 1500);
+    const formWithDateTime = {
+      name: form.name,
+      message: form.message,
+      time: new Date().toLocaleString('en-US', {
+        timeZone: 'Asia/Kolkata',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short'
+      }),
+    };
+
+    emailjs.send('service_a6bylxy', 'template_avfl7q6', formWithDateTime)
+      .then(
+        () => {
+          setStatus('sent');
+          setForm({ name: '', email: '', subject: '', message: '' });
+          setTimeout(() => setStatus('idle'), 4000);
+        },
+        (error) => {
+          setStatus('error');
+          console.error('EmailJS Error:', error);
+          setTimeout(() => setStatus('idle'), 4000);
+        }
+      );
   };
 
   return (
     <section id="contact" className="py-24 bg-slate-950 dark:bg-slate-950 relative overflow-hidden">
+      {/* Background effects */}
       <div className="absolute inset-0 pointer-events-none opacity-20">
         <div className="absolute bottom-0 left-1/4 w-72 h-72 rounded-full"
           style={{ background: 'radial-gradient(circle, #0ea5e9 0%, transparent 70%)', filter: 'blur(80px)' }} />
@@ -37,7 +66,9 @@ export default function Contact() {
           style={{ background: 'radial-gradient(circle, #06b6d4 0%, transparent 70%)', filter: 'blur(80px)' }} />
       </div>
 
+      {/* Main content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section header */}
         <div className="text-center mb-16">
           <p className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-3">Let's Talk</p>
           <h2 className="section-title gradient-text">Get In Touch</h2>
@@ -47,9 +78,11 @@ export default function Contact() {
           </p>
         </div>
 
+        {/* Contact info and form */}
         <div className="grid lg:grid-cols-5 gap-10">
           {/* Contact Info */}
           <div ref={leftRef} className="scroll-animate-left lg:col-span-2 space-y-6">
+            {/* Contact Information Card */}
             <div className="glass rounded-2xl p-6 border border-white/5">
               <h3 className="font-display font-semibold text-white text-lg mb-6">Contact Information</h3>
               <div className="space-y-5">
@@ -73,6 +106,7 @@ export default function Contact() {
               </div>
             </div>
 
+            {/* Social Links Card */}
             <div className="glass rounded-2xl p-6 border border-white/5">
               <h3 className="font-display font-semibold text-white text-base mb-4">Find me on</h3>
               <div className="flex gap-3">
@@ -95,6 +129,7 @@ export default function Contact() {
               </div>
             </div>
 
+            {/* Availability Card */}
             <div className="glass rounded-2xl p-6 border border-white/5">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -116,6 +151,14 @@ export default function Contact() {
                   </div>
                   <h3 className="font-display font-bold text-white text-xl mb-2">Message Sent!</h3>
                   <p className="text-slate-400">Thank you for reaching out. I'll get back to you within 24 hours.</p>
+                </div>
+              ) : status === 'error' ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+                    <AlertCircle size={32} className="text-red-400" />
+                  </div>
+                  <h3 className="font-display font-bold text-white text-xl mb-2">Error Sending Message</h3>
+                  <p className="text-slate-400">Please try again later.</p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -198,3 +241,5 @@ export default function Contact() {
     </section>
   );
 }
+
+
